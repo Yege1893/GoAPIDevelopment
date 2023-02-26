@@ -14,7 +14,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // WIP: Replace Array with DB
@@ -22,6 +24,8 @@ var todos []Todo
 var domains = [1]string{"development"}
 
 func CreateTodo(w http.ResponseWriter, r *http.Request) {
+	var todo Todo
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading the Requestbody", http.StatusInternalServerError)
@@ -31,10 +35,45 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	data := url.Values{}
 	// Unmarshal the Byte-Stream into the JSON-Data
 	json.Unmarshal(body, &data)
-
 	// WIP: Safe data in todos (e.g.)
-	fmt.Println("Der Titel lautet: ", data.Get("title"))
-
+	fmt.Println("Der Titel lautet: ", data.Get("title"), 1)
+	// time format problems
+	conv_completed_at, err := time.Parse(time.RFC3339, data.Get("completed_at"))
+	if err != nil {
+		fmt.Println(err)
+	}
+	todo.CompletedAt = conv_completed_at
+	conv_created_at, err := time.Parse(time.RFC3339, data.Get("created_at"))
+	if err != nil {
+		fmt.Println(err)
+	}
+	todo.CreatedAt = conv_created_at
+	todo.Title = data.Get("title")
+	todo.Description = data.Get("description")
+	id_todo, err := strconv.ParseInt(data.Get("id"), 10, 32)
+	if err != nil {
+		fmt.Println(err)
+	}
+	todo.Id = int32(id_todo)
+	todo.Status = data.Get("status")
+	//todo.Reporter.Email = data["reporter"][4]
+	//todo.Reporter.Firstname = data["reporter"][0]
+	//todo.Reporter.Role = data["reporter"][1]
+	//todo.Reporter.Surname = data["reporter"][2]
+	/*
+		id_reporter, err := strconv.ParseInt(data["reporter"][3], 10, 32)
+		if err != nil {
+			fmt.Println(err)
+		}
+		todo.Reporter.Id = int32(id_reporter)
+	*/
+	todo.Responsibility = data.Get("resposibility")
+	todo.Priority = data.Get("priority")
+	//fmt.Println(todo.Reporter.Email)
+	//fmt.Println(data["reporter"][1])
+	//fmt.Println(data.Get("reporter"))
+	//fmt.Println(todo)
+	todos = append(todos, todo)
 	w.WriteHeader(http.StatusCreated)
 }
 
