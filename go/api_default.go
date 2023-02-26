@@ -37,6 +37,7 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(body, &data)
 	// WIP: Safe data in todos (e.g.)
 	fmt.Println("Der Titel lautet: ", data.Get("title"), 1)
+
 	// time format problems
 	conv_completed_at, err := time.Parse(time.RFC3339, data.Get("completed_at"))
 	if err != nil {
@@ -56,23 +57,22 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	}
 	todo.Id = int32(id_todo)
 	todo.Status = data.Get("status")
-	//todo.Reporter.Email = data["reporter"][4]
-	//todo.Reporter.Firstname = data["reporter"][0]
-	//todo.Reporter.Role = data["reporter"][1]
-	//todo.Reporter.Surname = data["reporter"][2]
-	/*
-		id_reporter, err := strconv.ParseInt(data["reporter"][3], 10, 32)
-		if err != nil {
-			fmt.Println(err)
-		}
-		todo.Reporter.Id = int32(id_reporter)
-	*/
-	todo.Responsibility = data.Get("resposibility")
+
+	// evtl. schöner machen
+	var reporter User
+	reporter.Email = data["reporter"][4]
+	reporter.Firstname = data["reporter"][0]
+	reporter.Role = data["reporter"][1]
+	reporter.Surname = data["reporter"][2]
+	id_reporter, err := strconv.ParseInt(data["reporter"][3], 10, 32)
+	if err != nil {
+		fmt.Println(err)
+	}
+	reporter.Id = int32(id_reporter)
+	todo.Reporter = &reporter
+	todo.Responsibility = data.Get("responsibility")
 	todo.Priority = data.Get("priority")
-	//fmt.Println(todo.Reporter.Email)
-	//fmt.Println(data["reporter"][1])
-	//fmt.Println(data.Get("reporter"))
-	//fmt.Println(todo)
+
 	todos = append(todos, todo)
 	w.WriteHeader(http.StatusCreated)
 }
