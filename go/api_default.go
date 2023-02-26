@@ -11,14 +11,34 @@ package swagger
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
+// WIP: Replace Array with DB
 var todos []Todo
 var domains = [1]string{"development"}
 
 func CreateTodo(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading the Requestbody", http.StatusInternalServerError)
+		return
+	}
+
+	data := url.Values{}
+	// Unmarshal the Byte-Stream into the JSON-Data
+	json.Unmarshal(body, &data)
+
+	// WIP: Safe data in todos (e.g.)
+	fmt.Println("Der Titel lautet: ", data.Get("title"))
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+func CreateTodoLocal(w http.ResponseWriter, r *http.Request) {
 	todo, err := parseRequest(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
