@@ -20,6 +20,8 @@ import (
 	//    sw "github.com/myname/myrepo/go"
 	//
 	sw "GoAPIDevelopment/go"
+
+	"github.com/gorilla/handlers"
 )
 
 func main() {
@@ -27,5 +29,12 @@ func main() {
 
 	router := sw.NewRouter()
 
-	log.Fatal(http.ListenAndServe(":8081", router))
+	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
+	origins := handlers.AllowedOrigins([]string{"http://localhost:8082", "http://localhost:8080"})
+
+	// Add this line to enable CORS
+	handler := handlers.CORS(origins, headers, methods)(router)
+
+	log.Fatal(http.ListenAndServe(":8081", handler))
 }

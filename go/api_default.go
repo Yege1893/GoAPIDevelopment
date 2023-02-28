@@ -23,7 +23,7 @@ import (
 var todos []Todo
 var domains = [1]string{"development"}
 
-func CreateTodo(w http.ResponseWriter, r *http.Request) {
+func CreateTodoExternal(w http.ResponseWriter, r *http.Request) {
 	var todo Todo
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -39,12 +39,12 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Der Titel lautet: ", data.Get("title"), 1)
 
 	// time format problems
-	conv_completed_at, err := time.Parse(time.RFC3339, data.Get("completed_at"))
+	conv_completed_at, err := time.Parse("2023-02-20 04:59:12 +0000 +0000", data.Get("completed_at"))
 	if err != nil {
 		fmt.Println(err)
 	}
 	todo.CompletedAt = conv_completed_at
-	conv_created_at, err := time.Parse(time.RFC3339, data.Get("created_at"))
+	conv_created_at, err := time.Parse("2023-02-20 04:59:12 +0000 +0000", data.Get("created_at"))
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -77,7 +77,7 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func CreateTodoLocal(w http.ResponseWriter, r *http.Request) {
+func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	todo, err := parseRequest(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
